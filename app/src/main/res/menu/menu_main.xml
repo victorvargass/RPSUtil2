@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="victorvs.com.rpsutil2.MainActivity">
+
+    <item
+        android:id="@+id/boleta_nula"
+        android:orderInCategory="100"
+        android:title="Agregar boleta nula"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/consultar_boleta"
+        android:orderInCategory="100"
+        android:title="Consultar boleta"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/eliminar_boleta"
+        android:orderInCategory="100"
+        android:title="Eliminar última boleta"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/fin_turno"
+        android:orderInCategory="100"
+        android:title="Finalizar turno"
+        app:showAsAction="never" />
+</menu>
+
