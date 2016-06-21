@@ -29,6 +29,7 @@ public class CursorSQLHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(sqlTablaBoleta);
+        db.execSQL(sqlTablaTurno);
     }
 
     @Override
