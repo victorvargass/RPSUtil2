@@ -266,21 +266,6 @@ public class MainActivity extends AppCompatActivity {
         return datos;
     }
 
-    public int nBoletaF() {
-        int datos = 0;
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-         SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta ORDER BY id DESC LIMIT 1", null);
-
-        if (fila.moveToFirst()) {
-            datos = fila.getInt(0);
-        }
-        bd.close();
-        return datos;
-    }
-
     public String nBoletaF(String fecha,String tipo) {
         String datos = "";
         CursorSQLHelper db = new CursorSQLHelper(this,

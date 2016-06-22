@@ -33,6 +33,36 @@ public class finalActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.right_in, R.anim.right_out);
     }
 
+    public String nBoletaF(String fecha,String tipo) {
+        String datos = "";
+        CursorSQLHelper db = new CursorSQLHelper(this,
+                BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor fila = bd.rawQuery(
+                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"' ORDER BY id DESC LIMIT 1", null);
+
+        if (fila.moveToFirst()) {
+            datos = fila.getString(0);
+        }
+        bd.close();
+        return datos;
+    }
+    public String nBoletaI(String fecha,String tipo) {
+        String datos = "";
+        CursorSQLHelper db = new CursorSQLHelper(this,
+                BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor fila = bd.rawQuery(
+                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"' ORDER BY id ASC LIMIT 1", null);
+
+        if (fila.moveToFirst()) {
+            datos = fila.getString(0);
+        }
+        bd.close();
+        return datos;
+    }
+
+
 
     public ArrayList<String> getTurnobyPK(String fecha_turno,String tipo_turno){
         ArrayList<String> datos_turno=new ArrayList<>();
@@ -55,7 +85,6 @@ public class finalActivity extends AppCompatActivity {
         db.close();
         return datos_turno;
     }
-
 
     public void finalizarTurno(String tipo, String fecha){
         ContentValues values=new ContentValues();
@@ -97,8 +126,8 @@ public class finalActivity extends AppCompatActivity {
         String valor_total = datos_turno.get(2);
         String cantidad_boletas = datos_turno.get(3);
 
-        b_i.setText("prox");
-        b_f.setText("prox");
+        b_i.setText(nBoletaI(fecha,tipo));
+        b_f.setText(nBoletaF(fecha,tipo));
         n_bt.setText(cantidad_boletas);
         m_total.setText(valor_total);
         turno.setText("Turno " + tipo);
