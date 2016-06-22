@@ -11,16 +11,20 @@ public class CursorSQLHelper extends SQLiteOpenHelper{
     String sqlTablaBoleta="CREATE TABLE Boleta(" +
             "id integer primary key AUTOINCREMENT," +
             "boleta text," +
-            "valor text," +
+            "valor integer," +
             "nula integer," +
-            "turno text," +
-            "fecha text)";
+            "tipo_turno text ," +
+            "fecha_turno text," +
+            "foreign key (tipo_turno) references Turno(tipo)," +
+            "foreign key (fecha_turno) references Turno(fecha))";
+
     String sqlTablaTurno="CREATE TABLE Turno(" +
+            "id integer primary key AUTOINCREMENT,"+
             "fecha text," +
-            "tipo text" +
-            "valor_total integer" +
-            "cantidad_boletas" +
-            "estado text";
+            "tipo text," +
+            "valor_total integer," +
+            "cantidad_boletas integer," +
+            "estado integer)";
 
     public CursorSQLHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

@@ -9,9 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class finalActivity extends AppCompatActivity {
 
-    private String BD_NAME = "BD10";
+    private String BD_NAME = "base1";
 
     private TextView b_i;
     private TextView b_f;
@@ -30,79 +32,34 @@ public class finalActivity extends AppCompatActivity {
     }
 
 
-    public String valorTotal(int nula) {
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
+    public ArrayList<String> getTurnobyPK(String fecha_turno,String tipo_turno){
+        ArrayList<String> datos_turno=new ArrayList<>();
+        CursorSQLHelper db = new CursorSQLHelper(this,BD_NAME, null, 1);
         SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT SUM(valor) FROM Boleta WHERE nula='" + nula + "'", null);
+        Cursor c = bd.rawQuery(
+                "SELECT fecha,tipo,valor_total,cantidad_boletas FROM Turno WHERE fecha='"+fecha_turno+
+                        "' AND tipo='"+tipo_turno+" ORDER BY id DESC LIMIT 1", null);
 
-        String datos = "";
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
+        if (c.moveToFirst()) {
+            String fecha = c.getString(0);
+            String tipo = c.getString(1);
+            String valor_total = String.valueOf(c.getInt(2));
+            String cantidad_boletas = String.valueOf(c.getInt(3));
+            datos_turno.add(0,fecha);
+            datos_turno.add(1,tipo);
+            datos_turno.add(2,valor_total);
+            datos_turno.add(3,cantidad_boletas);
         }
-        bd.close();
-        return datos;
+        return datos_turno;
     }
 
-
-    public String cantidadBoletas() {
-        String datos = "";
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT COUNT(DISTINCT boleta) FROM Boleta", null);
-
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
-        }
-        bd.close();
-        return datos;
-    }
-    public String cantidadBoletas(int nula) {
-        String datos = "";
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT COUNT(DISTINCT boleta) FROM Boleta WHERE nula='" + nula + "'", null);
-
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
-        }
-        bd.close();
-        return datos;
+    public void finalizarTurno(String tipo, String fecha){
+        CursorSQLHelper ch=new  CursorSQLHelper(this, BD_NAME, null, 1);
+        SQLiteDatabase db=ch.getWritableDatabase();
+        db.execSQL("UPDATE Turno SET estado=0 WHERE tipo='"+tipo+"' AND fecha='"+fecha+"'",null);
+        db.close();
     }
 
-    public String nBoletaI() {
-        String datos = "";
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta ORDER BY id ASC LIMIT 1", null);
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
-        }
-        bd.close();
-        return datos;
-    }
-
-    public String nBoletaF() {
-        String datos = "";
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta ORDER BY id DESC LIMIT 1", null);
-
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
-        }
-        bd.close();
-        return datos;
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,15 +78,22 @@ public class finalActivity extends AppCompatActivity {
 
 
         Bundle bundle = getIntent().getExtras();
-        final String turnos = bundle.getString("turno");
+        final String tipo = bundle.getString("tipo");
+        final String fecha = bundle.getString("fecha");
 
-        b_i.setText(nBoletaI());
-        b_f.setText(nBoletaF());
-        n_bt.setText(cantidadBoletas());
-        m_total.setText(valorTotal(0));
-        turno.setText("Turno " + turnos);
-        n_bn.setText(cantidadBoletas(1));
-        m_nulas.setText(valorTotal(1));
+        ArrayList<String> datos_turno = getTurnobyPK(fecha,tipo);
+
+        String valor_total = datos_turno.get(2);
+        String cantidad_boletas = datos_turno.get(3);
+
+        b_i.setText("prox");
+        b_f.setText("prox");
+        n_bt.setText(cantidad_boletas);
+        m_total.setText(valor_total);
+        turno.setText("Turno " + tipo);
+        n_bn.setText("prox");
+        m_nulas.setText("prox");
+        finalizarTurno(tipo,fecha);
 
         init.setOnClickListener(new View.OnClickListener() {
             @Override

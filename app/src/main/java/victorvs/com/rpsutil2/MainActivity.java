@@ -43,7 +43,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String BD_NAME = "BD10";
+    private String BD_NAME = "base1";
 
     private int año;
     private int mes;
@@ -101,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
             c.put("boleta", boleta);
             c.put("valor", valor);
             c.put("nula", nula);
-            c.put("turno", turno);
-            c.put("fecha", fecha);
+            c.put("tipo_turno", turno);
+            c.put("fecha_turno", fecha);
             db.insert("Boleta", null, c);
             db.close();
 
@@ -111,6 +111,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public ArrayList<String> getUltimoTurnoActivo(){
+        ArrayList<String> datos_turno=new ArrayList<>();
+        CursorSQLHelper db = new CursorSQLHelper(this,BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor c = bd.rawQuery(
+                "SELECT fecha,tipo,valor_total,cantidad_boletas FROM Turno WHERE estado=1 ORDER BY id DESC LIMIT 1", null);
+
+        if (c.moveToFirst()) {
+            String fecha = c.getString(0);
+            String tipo = c.getString(1);
+            String valor_total = String.valueOf(c.getInt(2));
+            String cantidad_boletas = String.valueOf(c.getInt(3));
+            datos_turno.add(0,fecha);
+            datos_turno.add(1,tipo);
+            datos_turno.add(2,valor_total);
+            datos_turno.add(3,cantidad_boletas);
+        }
+        return datos_turno;
+    }
+
+
+    private void insertarTurno(String fecha, String tipo, int estado) {
+        CursorSQLHelper ch = new CursorSQLHelper(this, BD_NAME, null, 1);
+        SQLiteDatabase db = ch.getWritableDatabase();
+        try {
+            ContentValues c = new ContentValues();
+            c.put("fecha", fecha);
+            c.put("tipo", tipo);
+            c.put("valor_total", 0);
+            c.put("cantidad_boletas", 0);
+            c.put("estado",estado);
+
+            db.insert("Turno", null, c);
+            db.close();
+
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+        }
+    }
+    public void actualizarTurno(String tipo, String fecha,int valor_total,int cantidad_boletas){
+        CursorSQLHelper ch=new  CursorSQLHelper(this, BD_NAME, null, 1);
+        SQLiteDatabase db=ch.getWritableDatabase();
+        db.execSQL("UPDATE Turno SET valor_total="+valor_total+" AND cantidad_boletas="+cantidad_boletas+
+                " WHERE tipo='"+tipo+"' AND fecha='"+fecha+"'",null);
+        db.close();
+    }
     /*
     public void actualizarBoleta(String boleta, String valor, int nula, String turno, String fecha) {
         CursorSQLHelper ch = new CursorSQLHelper(this, BD_NAME, null, 1);
@@ -174,65 +220,17 @@ public class MainActivity extends AppCompatActivity {
         return datos;
     }
 
-/*
-    public ArrayList<String> getBoletasTotal() {
-        //Open connection to read only
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        ArrayList<HashMap<String, String>> listaBoletas = new ArrayList<>();
-
-        Cursor cursor = bd.rawQuery("SELECT id,boleta,valor,nula,turno,fecha FROM Boleta", null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                HashMap<String, String> boleta = new HashMap<String, String>();
-                boleta.put("id", cursor.getString(cursor.getColumnIndex("id")));
-                boleta.put("boleta", cursor.getString(cursor.getColumnIndex("boleta")));
-                boleta.put("valor", cursor.getString(cursor.getColumnIndex("valor")));
-                boleta.put("nula", cursor.getString(cursor.getColumnIndex("nula")));
-                boleta.put("turno", cursor.getString(cursor.getColumnIndex("turno")));
-                boleta.put("fecha", cursor.getString(cursor.getColumnIndex("fecha")));
-
-                listaBoletas.add(boleta);
-
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        db.close();
-
-        String a= String.valueOf(listaBoletas.size());
-
-        Log.d("hola",a);
-        return listaBoletas;
-    }
-    */
-
-    public int valorTotal(int nula) {
+    public int valorTotal(int nula,String tipo_turno,String fecha_turno) {
         CursorSQLHelper db = new CursorSQLHelper(this,
                 BD_NAME, null, 1);
         SQLiteDatabase bd = db.getWritableDatabase();
         Cursor fila = bd.rawQuery(
-                "SELECT SUM(valor) FROM Boleta WHERE nula='" + nula + "'", null);
+                "SELECT SUM(valor) FROM Boleta WHERE nula='" + nula + "' AND tipo_turno='"
+                        +tipo_turno+"' AND fecha_turno='"+fecha_turno+"'", null);
 
         int datos=0;
         if (fila.moveToFirst()) {
             datos = fila.getInt(0);
-        }
-        bd.close();
-        return datos;
-    }
-
-    public String cantidadBoletas(int nula) {
-        String datos = "";
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT COUNT(DISTINCT boleta) FROM Boleta WHERE nula='" + nula + "'", null);
-
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
         }
         bd.close();
         return datos;
@@ -253,20 +251,6 @@ public class MainActivity extends AppCompatActivity {
         return datos;
     }
 
-    public int nBoletaI() {
-        int datos = 0;
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta ORDER BY id ASC LIMIT 1", null);
-        if (fila.moveToFirst()) {
-            datos = fila.getInt(0);
-        }
-        bd.close();
-        return datos;
-    }
-
     public int nBoletaF() {
         int datos = 0;
         CursorSQLHelper db = new CursorSQLHelper(this,
@@ -277,6 +261,21 @@ public class MainActivity extends AppCompatActivity {
 
         if (fila.moveToFirst()) {
             datos = fila.getInt(0);
+        }
+        bd.close();
+        return datos;
+    }
+
+    public String nBoletaF(String fecha,String tipo) {
+        String datos = "";
+        CursorSQLHelper db = new CursorSQLHelper(this,
+                BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor fila = bd.rawQuery(
+                "SELECT boleta FROM Boleta WHERE fecha='"+fecha+"' AND tipo='"+tipo+"' ORDER BY id DESC LIMIT 1", null);
+
+        if (fila.moveToFirst()) {
+            datos = fila.getString(0);
         }
         bd.close();
         return datos;
@@ -374,14 +373,18 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
         //Importar datos de boleta desde firstActivity
         Bundle bundle = getIntent().getExtras();
-        final String texto = bundle.getString("frase");
-        num_boleta.setText(texto);
+        final String n_boleta = bundle.getString("n_boleta");
+        int estado=bundle.getInt("estado");
+        if(estado==1){
+            restaurarEstado();
+        }
+        else{
+            num_boleta.setText(n_boleta);
+            insertarTurno(getFechaActual(),getTurno(),1);
+        }
 
-        textView_total.setText("$ "+valorTotal(0));
-        restaurarEstado(savedInstanceState);
         //Numeros
         button0.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -559,7 +562,9 @@ public class MainActivity extends AppCompatActivity {
                         num_boleta.setText(n_bol.toString());
                         insertarBoleta(bol, prec, 0, getTurno(), getFechaActual().substring(0, 11));
                         Toast.makeText(getApplicationContext(), "Boleta ingresada con éxito", Toast.LENGTH_SHORT).show();
-                        textView_total.setText("$ " + valorTotal(0));
+                        int valor=valorTotal(0,getTurno(),getFechaActual());
+                        actualizarTurno(getTurno(),getFechaActual(),valor,cantidadBoletas());
+                        textView_total.setText("$ " + valor);
 
                     }
                     textView_horas.setText("");
@@ -681,7 +686,7 @@ public class MainActivity extends AppCompatActivity {
                                         num_boleta.setText(String.valueOf(nBoletaF()));
 
                                         eliminarUltimaBoleta();
-                                        textView_total.setText("$ " + valorTotal(0));
+                                        textView_total.setText("$ " +valorTotal(0,getTurno(),getFechaActual()));
                                     }
                                 }
                             });
@@ -711,7 +716,8 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     Intent intent2 = new Intent(getBaseContext(), finalActivity.class);
-                                    intent2.putExtra("turno", getTurno());
+                                    intent2.putExtra("fecha", getFechaActual());
+                                    intent2.putExtra("tipo", getTurno());
                                     overridePendingTransition(R.anim.zoom_back_in, R.anim.zoom_back_out);
                                     startActivityForResult(intent2, 1);
 
@@ -880,6 +886,7 @@ public class MainActivity extends AppCompatActivity {
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+
 
 
     public String zerosAtLeft(int number, int size) {
@@ -1058,17 +1065,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void restaurarEstado(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            String b = savedInstanceState.getString("bol");
-            String t_tv = savedInstanceState.getString("total_tv");
-            Integer tb = savedInstanceState.getInt("t_bol");
-            Integer t = savedInstanceState.getInt("total");
-            num_boleta.setText(b);
-            total = t;
-            textView_total.setText(t_tv);
-            total_boletas = tb;
-        }
+    public void restaurarEstado() {
+        ArrayList<String> datosTurno=getUltimoTurnoActivo();
+        String fecha=datosTurno.get(0);
+        String turno=datosTurno.get(1);
+        String cantidad_total=datosTurno.get(2);
+        String ultima_boleta=nBoletaF(fecha,turno);
+
+        textView_total.setText(cantidad_total);
+        num_boleta.setText(ultima_boleta);
+
+        getSupportActionBar().setTitle("TURNO "+turno);
+
     }
 
     @Override
