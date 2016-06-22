@@ -33,6 +33,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String BD_NAME = "base1";
+    private String BD_NAME = "base9";
 
     private int año;
     private int mes;
@@ -83,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
     private Integer hrs1, hrs2, mins1, mins2, precio, precio_dsc;
     private Integer total = 0;
     private Integer total_boletas = 0;
+    private String turno;
 
-    private String turno = "";
     private boolean nul;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -131,10 +132,39 @@ public class MainActivity extends AppCompatActivity {
         return datos_turno;
     }
 
+    public ArrayList<String> getTurnobyPK(String fecha_turno,String tipo_turno){
+        ArrayList<String> datos_turno=new ArrayList<>();
+        CursorSQLHelper db = new CursorSQLHelper(this,BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor c = bd.rawQuery(
+                "SELECT fecha,tipo,valor_total,cantidad_boletas FROM Turno WHERE fecha='"+fecha_turno+
+                        "' AND tipo='"+tipo_turno+"'", null);
+
+        if (c.moveToFirst()) {
+            String fecha = c.getString(0);
+            String tipo = c.getString(1);
+            String valor_total = String.valueOf(c.getInt(2));
+            String cantidad_boletas = String.valueOf(c.getInt(3));
+            datos_turno.add(0,fecha);
+            datos_turno.add(1,tipo);
+            datos_turno.add(2,valor_total);
+            datos_turno.add(3,cantidad_boletas);
+        }
+        db.close();
+        return datos_turno;
+    }
+
 
     private void insertarTurno(String fecha, String tipo, int estado) {
         CursorSQLHelper ch = new CursorSQLHelper(this, BD_NAME, null, 1);
         SQLiteDatabase db = ch.getWritableDatabase();
+
+        ArrayList<String> datos_turno = getTurnobyPK(fecha,tipo);
+
+        if(!datos_turno.isEmpty()){
+            return;
+        }
+
         try {
             ContentValues c = new ContentValues();
             c.put("fecha", fecha);
@@ -151,33 +181,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void actualizarTurno(String tipo, String fecha,int valor_total,int cantidad_boletas){
+        ContentValues values=new ContentValues();
+        values.put("valor_total",valor_total);
+        values.put("cantidad_boletas",cantidad_boletas);
+
+        String where="tipo=? AND fecha=?";
+        String[] whereArgs={tipo,fecha};
         CursorSQLHelper ch=new  CursorSQLHelper(this, BD_NAME, null, 1);
         SQLiteDatabase db=ch.getWritableDatabase();
-        db.execSQL("UPDATE Turno SET valor_total="+valor_total+" AND cantidad_boletas="+cantidad_boletas+
-                " WHERE tipo='"+tipo+"' AND fecha='"+fecha+"'",null);
+        int nColumnasActualizadas=db.update("Turno",values,where,whereArgs);
+        Log.d("N° columnas act: ",String.valueOf(nColumnasActualizadas));
         db.close();
     }
-    /*
-    public void actualizarBoleta(String boleta, String valor, int nula, String turno, String fecha) {
-        CursorSQLHelper ch = new CursorSQLHelper(this, BD_NAME, null, 1);
-        SQLiteDatabase db = ch.getWritableDatabase();
-
-        try {
-            ContentValues c = new ContentValues();
-            c.put("boleta", boleta);
-            c.put("valor", valor);
-            c.put("nula", nula);
-            c.put("turno", turno);
-            c.put("fecha", fecha);
-            db.insert("Boleta", null, c);
-            db.close();
-
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-        }
-        // updating row
-        return db.update();
-    }*/
 
 
     public String consultaBoleta(String n_boleta) {
@@ -186,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 BD_NAME, null, 1);
         SQLiteDatabase bd = db.getWritableDatabase();
         Cursor fila = bd.rawQuery(
-                "SELECT id,boleta,valor,nula,turno,fecha FROM Boleta WHERE boleta='" + n_boleta + "'", null);
+                "SELECT id,boleta,valor,nula,tipo_turno,fecha_turno FROM Boleta WHERE boleta='" + n_boleta + "'", null);
 
         if (fila.moveToFirst()) {
             String n = fila.getString(0);
@@ -236,13 +251,13 @@ public class MainActivity extends AppCompatActivity {
         return datos;
     }
 
-    public int cantidadBoletas() {
+    public int cantidadBoletas(String tipo,String fecha) {
         int datos = 0;
         CursorSQLHelper db = new CursorSQLHelper(this,
                 BD_NAME, null, 1);
         SQLiteDatabase bd = db.getWritableDatabase();
         Cursor fila = bd.rawQuery(
-                "SELECT COUNT(DISTINCT boleta) FROM Boleta", null);
+                "SELECT COUNT(DISTINCT boleta) FROM Boleta WHERE tipo_turno='"+tipo+"' AND fecha_turno='"+fecha+"'", null);
 
         if (fila.moveToFirst()) {
             datos = fila.getInt(0);
@@ -272,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
                 BD_NAME, null, 1);
         SQLiteDatabase bd = db.getWritableDatabase();
         Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta WHERE fecha='"+fecha+"' AND tipo='"+tipo+"' ORDER BY id DESC LIMIT 1", null);
+                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"' ORDER BY id DESC LIMIT 1", null);
 
         if (fila.moveToFirst()) {
             datos = fila.getString(0);
@@ -281,13 +296,13 @@ public class MainActivity extends AppCompatActivity {
         return datos;
     }
 
-    public void eliminarUltimaBoleta() {
+    public void eliminarUltimaBoleta(String tipo,String fecha) {
         String valor="";
         CursorSQLHelper db = new CursorSQLHelper(this,
                 BD_NAME, null, 1);
         SQLiteDatabase bd = db.getWritableDatabase();
         Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta ORDER BY id DESC LIMIT 1", null);
+                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"'ORDER BY id DESC LIMIT 1", null);
 
         if (fila.moveToFirst()) {
             valor = fila.getString(0);
@@ -297,7 +312,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public String getTurno() {
+    /*public String getTurno() {
+
         String horaA = new SimpleDateFormat("HH:mm",
                 Locale.getDefault()).format(Calendar.getInstance().getTime());
         Calendar horaActual = Calendar.getInstance();
@@ -318,16 +334,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return turno;
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Importar datos de boleta desde firstActivity
+        Bundle bundle = getIntent().getExtras();
+        final String n_boleta = bundle.getString("n_boleta");
+        turno=bundle.getString("turno");
+        int estado=bundle.getInt("estado");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("TURNO " + getTurno());  // provide compatibility to all the versions
+        getSupportActionBar().setTitle("TURNO " + turno);  // provide compatibility to all the versions
 
 
         textView_horas = (TextView) findViewById(R.id.textView_horas);
@@ -373,16 +395,12 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        //Importar datos de boleta desde firstActivity
-        Bundle bundle = getIntent().getExtras();
-        final String n_boleta = bundle.getString("n_boleta");
-        int estado=bundle.getInt("estado");
         if(estado==1){
             restaurarEstado();
         }
         else{
             num_boleta.setText(n_boleta);
-            insertarTurno(getFechaActual(),getTurno(),1);
+            insertarTurno(getFechaActual(),turno,1);
         }
 
         //Numeros
@@ -560,11 +578,13 @@ public class MainActivity extends AppCompatActivity {
                         n_bol = n_bol + 1;
                         String prec = precio_dsc.toString();
                         num_boleta.setText(n_bol.toString());
-                        insertarBoleta(bol, prec, 0, getTurno(), getFechaActual().substring(0, 11));
+                        insertarBoleta(bol, prec, 0, turno, getFechaActual());
                         Toast.makeText(getApplicationContext(), "Boleta ingresada con éxito", Toast.LENGTH_SHORT).show();
-                        int valor=valorTotal(0,getTurno(),getFechaActual());
-                        actualizarTurno(getTurno(),getFechaActual(),valor,cantidadBoletas());
-                        textView_total.setText("$ " + valor);
+                        int valor=valorTotal(0,turno,getFechaActual());
+                        Log.d("Actualizar turno","Turno "+turno+" Fecha actual: "+getFechaActual()+" Valor: "+valor+
+                        "Cantidad bol: "+cantidadBoletas(turno,getFechaActual()));
+                        actualizarTurno(turno,getFechaActual(),valor,cantidadBoletas(turno,getFechaActual()));
+                        textView_total.setText("$ " + String.valueOf(valor));
 
                     }
                     textView_horas.setText("");
@@ -616,7 +636,9 @@ public class MainActivity extends AppCompatActivity {
                                             n_bol = n_bol + 1;
                                             String bol = n_bol.toString();
                                             num_boleta.setText(bol);
-                                            insertarBoleta(boleta, valor_nula, 1, getTurno(), getFechaActual().substring(0, 11));
+                                            Log.d("Nulas:",boleta+" "+ valor_nula+" "+turno+" "+getFechaActual());
+                                            insertarBoleta(boleta, valor_nula, 1, turno, getFechaActual());
+
                                             Toast.makeText(getApplicationContext(), "Boleta nula ingresada con éxito", Toast.LENGTH_SHORT).show();
                                         } else {
                                             int v = Integer.parseInt(valor_nula);
@@ -624,8 +646,9 @@ public class MainActivity extends AppCompatActivity {
                                                 n_bol = n_bol + 1;
                                                 String bol = n_bol.toString();
                                                 num_boleta.setText(bol);
+                                                Log.d("Nulas:",boleta+" "+ valor_nula+" "+turno+" "+getFechaActual());
+                                                insertarBoleta(boleta,valor_nula,1,turno,getFechaActual());
                                                 Toast.makeText(getApplicationContext(), "Boleta nula ingresada con éxito", Toast.LENGTH_SHORT).show();
-                                                insertarBoleta(boleta, valor_nula, 1, getTurno(), getFechaActual().substring(0, 11));
                                             } else {
                                                 Toast.makeText(getApplicationContext(), "Valor de boleta erróneo", Toast.LENGTH_SHORT).show();
 
@@ -672,7 +695,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     case R.id.eliminar_boleta:
-                        if (cantidadBoletas()==0) {
+                        if (cantidadBoletas(turno,getFechaActual())==0) {
                             Toast.makeText(getApplicationContext(), "Genere boletas", Toast.LENGTH_SHORT).show();
                         } else {
                             AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
@@ -683,10 +706,13 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     if (nul == false) {
-                                        num_boleta.setText(String.valueOf(nBoletaF()));
-
-                                        eliminarUltimaBoleta();
-                                        textView_total.setText("$ " +valorTotal(0,getTurno(),getFechaActual()));
+                                        num_boleta.setText(String.valueOf(nBoletaF(getFechaActual(),turno)));
+                                        eliminarUltimaBoleta(turno,getFechaActual());
+                                        int valor=valorTotal(0,turno,getFechaActual());
+                                        textView_total.setText("$ " +valor);
+                                        Log.d("Actualizar turno","Turno "+turno+" Fecha actual: "+getFechaActual()+" Valor: "+valor+
+                                                "Cantidad bol: "+cantidadBoletas(turno,getFechaActual()));
+                                        actualizarTurno(turno,getFechaActual(),valor,cantidadBoletas(turno,getFechaActual()));
                                     }
                                 }
                             });
@@ -706,7 +732,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     case R.id.fin_turno:
-                        if (cantidadBoletas()==0) {
+                        if (cantidadBoletas(turno,getFechaActual())==0) {
                             Toast.makeText(getApplicationContext(), "Genere boletas", Toast.LENGTH_SHORT).show();
                         } else {
                             AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
@@ -717,7 +743,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     Intent intent2 = new Intent(getBaseContext(), finalActivity.class);
                                     intent2.putExtra("fecha", getFechaActual());
-                                    intent2.putExtra("tipo", getTurno());
+                                    intent2.putExtra("tipo", turno);
                                     overridePendingTransition(R.anim.zoom_back_in, R.anim.zoom_back_out);
                                     startActivityForResult(intent2, 1);
 
@@ -772,9 +798,9 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     textView_fechas.setText(
                             "     " + getFechaLlegada(año, mes, dia)
-                                    + "         " + getFechaActual().substring(0, 10));
+                                    + "         " + getFullFechaActual().substring(0, 10));
                     String fecha1 = getFechaLlegada(año, mes, dia) + " " + textView_horas.getText().toString().substring(0, 5) + ":00";
-                    String fecha2 = getFechaActual().substring(0, 16) + ":00";
+                    String fecha2 = getFullFechaActual().substring(0, 16) + ":00";
                     String fechaA = fecha2.substring(0, 10);
 
 
@@ -926,6 +952,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public String getFechaActual() {
+        return new SimpleDateFormat("yyyy-MM-dd",
+                Locale.getDefault()).format(Calendar.getInstance().getTime());
+    }
+    public String getFullFechaActual() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
                 Locale.getDefault()).format(Calendar.getInstance().getTime());
     }
@@ -1055,24 +1085,15 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("bol", num_boleta.getText().toString());
-        outState.putString("total_tv", textView_total.getText().toString());
-        outState.putInt("t_bol", total_boletas);
-        outState.putInt("total", total);
-    }
-
-
     public void restaurarEstado() {
         ArrayList<String> datosTurno=getUltimoTurnoActivo();
         String fecha=datosTurno.get(0);
-        String turno=datosTurno.get(1);
+        turno=datosTurno.get(1);
         String cantidad_total=datosTurno.get(2);
         String ultima_boleta=nBoletaF(fecha,turno);
 
-        textView_total.setText(cantidad_total);
+        Log.d("Restaurados",fecha+" "+turno+" "+cantidad_total+" "+ultima_boleta);
+        textView_total.setText("$ "+cantidad_total);
         num_boleta.setText(ultima_boleta);
 
         getSupportActionBar().setTitle("TURNO "+turno);

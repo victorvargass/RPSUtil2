@@ -18,7 +18,7 @@ public class CursorSQLHelper extends SQLiteOpenHelper{
             "foreign key (tipo_turno) references Turno(tipo)," +
             "foreign key (fecha_turno) references Turno(fecha))";
 
-    String sqlTablaTurno="CREATE TABLE Turno(" +
+    String sqlTablaTurno="CREATE TABLE Turno ("+
             "id integer primary key AUTOINCREMENT,"+
             "fecha text," +
             "tipo text," +
@@ -32,13 +32,16 @@ public class CursorSQLHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(sqlTablaBoleta);
         db.execSQL(sqlTablaTurno);
+        db.execSQL(sqlTablaBoleta);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE Boleta");
+        db.execSQL("DROP TABLE Turno");
         db.execSQL(sqlTablaBoleta);
+        db.execSQL(sqlTablaTurno);
+
     }
 }

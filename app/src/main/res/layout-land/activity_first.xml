@@ -31,8 +31,9 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical">
+            android:layout_height="159dp"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -54,12 +55,44 @@
                 android:layout_gravity="center_horizontal"
                 android:maxLength="4" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Iniciar turno"
-                android:id="@+id/ini_button"
-                android:layout_gravity="center_horizontal" />
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Iniciar turno"
+                        android:id="@+id/ini_button"
+                        android:layout_gravity="center"
+                        android:layout_span="2" />
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="Seleccione turno:"
+                        android:id="@+id/textView16" />
+
+                    <Spinner
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/spinTurno"
+                        android:layout_gravity="right" />
+                </TableRow>
+
+            </TableLayout>
+
         </LinearLayout>
 
     </LinearLayout>

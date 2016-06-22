@@ -1,10 +1,12 @@
 package victorvs.com.rpsutil2;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 
 public class finalActivity extends AppCompatActivity {
 
-    private String BD_NAME = "base1";
+    private String BD_NAME = "base9";
 
     private TextView b_i;
     private TextView b_f;
@@ -38,7 +40,7 @@ public class finalActivity extends AppCompatActivity {
         SQLiteDatabase bd = db.getWritableDatabase();
         Cursor c = bd.rawQuery(
                 "SELECT fecha,tipo,valor_total,cantidad_boletas FROM Turno WHERE fecha='"+fecha_turno+
-                        "' AND tipo='"+tipo_turno+" ORDER BY id DESC LIMIT 1", null);
+                        "' AND tipo='"+tipo_turno+"' ORDER BY id DESC LIMIT 1", null);
 
         if (c.moveToFirst()) {
             String fecha = c.getString(0);
@@ -50,13 +52,21 @@ public class finalActivity extends AppCompatActivity {
             datos_turno.add(2,valor_total);
             datos_turno.add(3,cantidad_boletas);
         }
+        db.close();
         return datos_turno;
     }
 
+
     public void finalizarTurno(String tipo, String fecha){
+        ContentValues values=new ContentValues();
+        values.put("estado",0);
+
+        String where="tipo=? AND fecha=?";
+        String[] whereArgs={tipo,fecha};
         CursorSQLHelper ch=new  CursorSQLHelper(this, BD_NAME, null, 1);
         SQLiteDatabase db=ch.getWritableDatabase();
-        db.execSQL("UPDATE Turno SET estado=0 WHERE tipo='"+tipo+"' AND fecha='"+fecha+"'",null);
+        int nColumnasActualizadas=db.update("Turno",values,where,whereArgs);
+        Log.d("FIn T N columnas act: ",String.valueOf(nColumnasActualizadas));
         db.close();
     }
 
@@ -83,6 +93,7 @@ public class finalActivity extends AppCompatActivity {
 
         ArrayList<String> datos_turno = getTurnobyPK(fecha,tipo);
 
+        Log.d("Final :",fecha+" "+tipo);
         String valor_total = datos_turno.get(2);
         String cantidad_boletas = datos_turno.get(3);
 

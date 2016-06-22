@@ -53,7 +53,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="Ingrese n° boleta inicial"
@@ -77,11 +77,36 @@
             android:maxLength="4" />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="186dp"
+            android:layout_height="66dp"
             android:text="Iniciar turno"
             android:id="@+id/ini_button"
-            android:layout_gravity="center_horizontal" />
+            android:layout_column="0"
+            android:layout_gravity="top|center" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Selecciona turno:"
+                    android:id="@+id/textView15"
+                    android:layout_column="1" />
+
+                <Spinner
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/spinTurno"
+                    android:layout_column="2" />
+            </TableRow>
+        </TableLayout>
 
     </LinearLayout>
 
