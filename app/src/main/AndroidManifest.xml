@@ -11,10 +11,12 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" />
 
         <activity
-            android:name=".firstActivity">
+            android:name=".firstActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,7 +24,8 @@
 
             </intent-filter>
         </activity>
-        <activity android:name=".finalActivity"/><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+        <activity android:name=".finalActivity"
+            android:screenOrientation="portrait" /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
             android:name="com.google.android.gms.version"
