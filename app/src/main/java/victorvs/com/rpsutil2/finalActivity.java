@@ -69,7 +69,7 @@ public class finalActivity extends AppCompatActivity {
         CursorSQLHelper db = new CursorSQLHelper(this,BD_NAME, null, 1);
         SQLiteDatabase bd = db.getWritableDatabase();
         Cursor c = bd.rawQuery(
-                "SELECT fecha,tipo,valor_total,cantidad_boletas FROM Turno WHERE fecha='"+fecha_turno+
+                "SELECT fecha,tipo,valor_total,cantidad_boletas,valor_total_nulas,cantidad_boletas_nulas FROM Turno WHERE fecha='"+fecha_turno+
                         "' AND tipo='"+tipo_turno+"' ORDER BY id DESC LIMIT 1", null);
 
         if (c.moveToFirst()) {
@@ -77,10 +77,14 @@ public class finalActivity extends AppCompatActivity {
             String tipo = c.getString(1);
             String valor_total = String.valueOf(c.getInt(2));
             String cantidad_boletas = String.valueOf(c.getInt(3));
+            String valor_total_nulas = String.valueOf(c.getInt(4));
+            String cantidad_boletas_nulas = String.valueOf(c.getInt(5));
             datos_turno.add(0,fecha);
             datos_turno.add(1,tipo);
             datos_turno.add(2,valor_total);
             datos_turno.add(3,cantidad_boletas);
+            datos_turno.add(4,valor_total_nulas);
+            datos_turno.add(5,cantidad_boletas_nulas);
         }
         db.close();
         return datos_turno;
@@ -125,14 +129,17 @@ public class finalActivity extends AppCompatActivity {
         Log.d("Final :",fecha+" "+tipo);
         String valor_total = datos_turno.get(2);
         String cantidad_boletas = datos_turno.get(3);
+        String valor_total_nulas=datos_turno.get(4);
+        String cantidad_boletas_nulas = datos_turno.get(5);
+
 
         b_i.setText(nBoletaI(fecha,tipo));
         b_f.setText(nBoletaF(fecha,tipo));
         n_bt.setText(cantidad_boletas);
         m_total.setText(valor_total);
         turno.setText("Turno " + tipo);
-        n_bn.setText("prox");
-        m_nulas.setText("prox");
+        n_bn.setText(cantidad_boletas_nulas);
+        m_nulas.setText(valor_total_nulas);
         finalizarTurno(tipo,fecha);
 
         init.setOnClickListener(new View.OnClickListener() {

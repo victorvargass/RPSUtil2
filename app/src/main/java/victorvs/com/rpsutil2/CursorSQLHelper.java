@@ -24,6 +24,8 @@ public class CursorSQLHelper extends SQLiteOpenHelper{
             "tipo text," +
             "valor_total integer," +
             "cantidad_boletas integer," +
+            "valor_total_nulas integer," +
+            "cantidad_boletas_nulas integer," +
             "estado integer)";
 
     public CursorSQLHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {

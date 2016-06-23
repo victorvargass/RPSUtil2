@@ -164,13 +164,14 @@ public class MainActivity extends AppCompatActivity {
         if(!datos_turno.isEmpty()){
             return;
         }
-
         try {
             ContentValues c = new ContentValues();
             c.put("fecha", fecha);
             c.put("tipo", tipo);
             c.put("valor_total", 0);
             c.put("cantidad_boletas", 0);
+            c.put("valor_total_nulas", 0);
+            c.put("cantidad_boletas_nulas", 0);
             c.put("estado",estado);
 
             db.insert("Turno", null, c);
@@ -180,10 +181,14 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
         }
     }
-    public void actualizarTurno(String tipo, String fecha,int valor_total,int cantidad_boletas){
+    public void actualizarTurno(String tipo, String fecha,int valor_total,int valor_boletas_nulas,int cantidad_boletas,int cantidad_boletas_nulas){
         ContentValues values=new ContentValues();
         values.put("valor_total",valor_total);
+        values.put("valor_total_nulas",valor_boletas_nulas);
+
         values.put("cantidad_boletas",cantidad_boletas);
+        values.put("cantidad_boletas_nulas",cantidad_boletas_nulas);
+
 
         String where="tipo=? AND fecha=?";
         String[] whereArgs={tipo,fecha};
@@ -266,6 +271,21 @@ public class MainActivity extends AppCompatActivity {
         return datos;
     }
 
+    public int cantidadBoletasNulas(String tipo,String fecha) {
+        int datos = 0;
+        CursorSQLHelper db = new CursorSQLHelper(this,
+                BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor fila = bd.rawQuery(
+                "SELECT COUNT(DISTINCT boleta) FROM Boleta WHERE tipo_turno='"+tipo+"' AND fecha_turno='"+fecha+"' AND nula=1", null);
+
+        if (fila.moveToFirst()) {
+            datos = fila.getInt(0);
+        }
+        bd.close();
+        return datos;
+    }
+
     public String nBoletaF(String fecha,String tipo) {
         String datos = "";
         CursorSQLHelper db = new CursorSQLHelper(this,
@@ -280,6 +300,22 @@ public class MainActivity extends AppCompatActivity {
         bd.close();
         return datos;
     }
+    public String nBoletaActual(String fecha,String tipo) {
+        int dato = 0;
+        CursorSQLHelper db = new CursorSQLHelper(this,
+                BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor fila = bd.rawQuery(
+                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"' ORDER BY id DESC LIMIT 1", null);
+
+        if (fila.moveToFirst()) {
+            dato = fila.getInt(0);
+        }
+        dato++;
+        String datos=String.valueOf(dato);
+        bd.close();
+        return datos;
+    }
 
     public void eliminarUltimaBoleta(String tipo,String fecha) {
         String valor="";
@@ -291,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (fila.moveToFirst()) {
             valor = fila.getString(0);
+            Log.d("Boleta eliminada:",valor);
         }
         bd.execSQL("DELETE FROM Boleta WHERE boleta=" +valor);
         bd.close();
@@ -566,9 +603,11 @@ public class MainActivity extends AppCompatActivity {
                         insertarBoleta(bol, prec, 0, turno, getFechaActual());
                         Toast.makeText(getApplicationContext(), "Boleta ingresada con éxito", Toast.LENGTH_SHORT).show();
                         int valor=valorTotal(0,turno,getFechaActual());
+                        int valor_nulas=valorTotal(1,turno,getFechaActual());
+
                         Log.d("Actualizar turno","Turno "+turno+" Fecha actual: "+getFechaActual()+" Valor: "+valor+
                         "Cantidad bol: "+cantidadBoletas(turno,getFechaActual()));
-                        actualizarTurno(turno,getFechaActual(),valor,cantidadBoletas(turno,getFechaActual()));
+                        actualizarTurno(turno,getFechaActual(),valor,valor_nulas,cantidadBoletas(turno,getFechaActual()),cantidadBoletasNulas(turno,getFechaActual()));
                         textView_total.setText("$ " + String.valueOf(valor));
 
                     }
@@ -598,7 +637,6 @@ public class MainActivity extends AppCompatActivity {
                         precio_dsc = 0;
 
                         View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.input_boleta_nula, null);
-
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setView(view);
                         builder.setTitle("Boleta nula");
@@ -623,7 +661,9 @@ public class MainActivity extends AppCompatActivity {
                                             num_boleta.setText(bol);
                                             Log.d("Nulas:",boleta+" "+ valor_nula+" "+turno+" "+getFechaActual());
                                             insertarBoleta(boleta, valor_nula, 1, turno, getFechaActual());
-
+                                            int valor=valorTotal(0,turno,getFechaActual());
+                                            int valor_nulas=valorTotal(1,turno,getFechaActual());
+                                            actualizarTurno(turno,getFechaActual(),valor,valor_nulas,cantidadBoletas(turno,getFechaActual()),cantidadBoletasNulas(turno,getFechaActual()));
                                             Toast.makeText(getApplicationContext(), "Boleta nula ingresada con éxito", Toast.LENGTH_SHORT).show();
                                         } else {
                                             int v = Integer.parseInt(valor_nula);
@@ -633,17 +673,17 @@ public class MainActivity extends AppCompatActivity {
                                                 num_boleta.setText(bol);
                                                 Log.d("Nulas:",boleta+" "+ valor_nula+" "+turno+" "+getFechaActual());
                                                 insertarBoleta(boleta,valor_nula,1,turno,getFechaActual());
+                                                int valor=valorTotal(0,turno,getFechaActual());
+                                                int valor_nulas=valorTotal(1,turno,getFechaActual());
+                                                actualizarTurno(turno,getFechaActual(),valor,valor_nulas,cantidadBoletas(turno,getFechaActual()),cantidadBoletasNulas(turno,getFechaActual()));
+
                                                 Toast.makeText(getApplicationContext(), "Boleta nula ingresada con éxito", Toast.LENGTH_SHORT).show();
                                             } else {
                                                 Toast.makeText(getApplicationContext(), "Valor de boleta erróneo", Toast.LENGTH_SHORT).show();
-
                                             }
-
                                         }
-
                                     }
                                 });
-
                         Dialog dialog = builder.create();
                         dialog.show();
                         return true;
@@ -680,7 +720,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     case R.id.eliminar_boleta:
-                        if (cantidadBoletas(turno,getFechaActual())==0) {
+                        if (cantidadBoletas(turno,getFechaActual())+cantidadBoletasNulas(turno,getFechaActual())==0) {
                             Toast.makeText(getApplicationContext(), "Genere boletas", Toast.LENGTH_SHORT).show();
                         } else {
                             AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
@@ -689,19 +729,19 @@ public class MainActivity extends AppCompatActivity {
                             builder2.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
                                     if (nul == false) {
                                         num_boleta.setText(String.valueOf(nBoletaF(getFechaActual(),turno)));
                                         eliminarUltimaBoleta(turno,getFechaActual());
                                         int valor=valorTotal(0,turno,getFechaActual());
+                                        int valor_nulas=valorTotal(1,turno,getFechaActual());
                                         textView_total.setText("$ " +valor);
                                         Log.d("Actualizar turno","Turno "+turno+" Fecha actual: "+getFechaActual()+" Valor: "+valor+
-                                                "Cantidad bol: "+cantidadBoletas(turno,getFechaActual()));
-                                        actualizarTurno(turno,getFechaActual(),valor,cantidadBoletas(turno,getFechaActual()));
+                                                "Cantidad bol: "+cantidadBoletas(turno,getFechaActual())+"" +
+                                                "Cantidad bol nulas: "+cantidadBoletasNulas(turno,getFechaActual()));
+                                        actualizarTurno(turno,getFechaActual(),valor,valor_nulas,cantidadBoletas(turno,getFechaActual()),cantidadBoletasNulas(turno,getFechaActual()));
                                     }
                                 }
                             });
-
                             builder2.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -710,8 +750,6 @@ public class MainActivity extends AppCompatActivity {
                             });
                             AlertDialog dialog2 = builder2.create();
                             dialog2.show();
-
-
                         }
                         return true;
 
@@ -1075,7 +1113,7 @@ public class MainActivity extends AppCompatActivity {
         String fecha=datosTurno.get(0);
         turno=datosTurno.get(1);
         String cantidad_total=datosTurno.get(2);
-        String ultima_boleta=nBoletaF(fecha,turno);
+        String ultima_boleta=nBoletaActual(fecha,turno);
 
         Log.d("Restaurados",fecha+" "+turno+" "+cantidad_total+" "+ultima_boleta);
         textView_total.setText("$ "+cantidad_total);
