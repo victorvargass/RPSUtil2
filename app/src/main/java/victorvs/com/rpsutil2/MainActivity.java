@@ -735,7 +735,6 @@ public class MainActivity extends AppCompatActivity {
                         Dialog dialog3 = builder4.create();
                         dialog3.show();
 
-
                         return true;
 
 
@@ -749,7 +748,7 @@ public class MainActivity extends AppCompatActivity {
                             builder2.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    if (nul == false) {
+                                    if (nul == false){
                                         num_boleta.setText(String.valueOf(nBoletaF(getFechaActual(),turno)));
                                         eliminarUltimaBoleta(turno,getFechaActual());
                                         int valor=valorTotal(0,turno,getFechaActual());
@@ -970,7 +969,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         overridePendingTransition(R.anim.right_in, R.anim.right_out);
     }
 

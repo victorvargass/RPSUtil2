@@ -1,10 +1,13 @@
 package victorvs.com.rpsutil2;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,6 +27,7 @@ public class firstActivity extends AppCompatActivity {
     private Button ini_button;
     private EditText num_boleta;
     private String turno;
+    private Button borrar_bd;
     @Override
     public void onBackPressed() {
         overridePendingTransition(R.anim.right_in, R.anim.right_out);
@@ -40,6 +44,14 @@ public class firstActivity extends AppCompatActivity {
         }
         bd.close();
         return estado;
+    }
+
+
+    public void setBorrar_bd() {
+        CursorSQLHelper db=new CursorSQLHelper(this,BD_NAME,null,1);
+        SQLiteDatabase bd=db.getWritableDatabase();
+        bd.delete("Boleta", null, null);
+        bd.delete("Turno", null, null);
     }
 
     @Override
@@ -65,6 +77,7 @@ public class firstActivity extends AppCompatActivity {
         });
 
         ini_button = (Button) findViewById(R.id.ini_button);
+        borrar_bd=(Button) findViewById(R.id.borrar_bd);
         final EditText num_boleta = (EditText) findViewById(R.id.num_boleta);
 
         if(getLastEstado()==1){
@@ -72,6 +85,33 @@ public class firstActivity extends AppCompatActivity {
             intent.putExtra("estado", 1);
             startActivityForResult(intent, 0);
         }
+
+
+    borrar_bd.setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View v) {
+             AlertDialog.Builder builder2 = new AlertDialog.Builder(firstActivity.this);
+             builder2.setMessage("¿Está seguro?");
+             builder2.setTitle("Limpiar base de datos");
+             builder2.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                     setBorrar_bd();
+                     Toast.makeText(getApplicationContext(), "Base de datos vacía", Toast.LENGTH_SHORT).show();
+                 }
+             });
+
+             builder2.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                     dialog.cancel();
+                 }
+             });
+             AlertDialog dialog2 = builder2.create();
+             dialog2.show();
+         }
+     });
+
 
         ini_button.setOnClickListener(new View.OnClickListener() {
             @Override

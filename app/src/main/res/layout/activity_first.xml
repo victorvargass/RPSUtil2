@@ -106,6 +106,24 @@
                     android:id="@+id/spinTurno"
                     android:layout_column="2" />
             </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:text="Limpiar BD"
+                    android:id="@+id/borrar_bd"
+                    android:layout_column="1" />
+            </TableRow>
         </TableLayout>
 
     </LinearLayout>
