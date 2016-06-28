@@ -64,7 +64,6 @@ public class firstActivity extends AppCompatActivity {
             }
         });
 
-
         ini_button = (Button) findViewById(R.id.ini_button);
         final EditText num_boleta = (EditText) findViewById(R.id.num_boleta);
 
@@ -77,7 +76,7 @@ public class firstActivity extends AppCompatActivity {
         ini_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (num_boleta.getText().length() != 4) {
+                if (num_boleta.getText().length() != 8) {
                     if (num_boleta.getText().length() == 0) {
                         Toast.makeText(getApplicationContext(), "Ingrese número de boleta", Toast.LENGTH_SHORT).show();
                     } else {

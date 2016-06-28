@@ -74,7 +74,7 @@
             android:ems="10"
             android:id="@+id/num_boleta"
             android:layout_gravity="center_horizontal"
-            android:maxLength="4" />
+            android:maxLength="8" />
 
         <Button
             android:layout_width="186dp"

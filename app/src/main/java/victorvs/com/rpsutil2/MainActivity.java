@@ -1,8 +1,10 @@
 package victorvs.com.rpsutil2;
 
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -271,6 +273,21 @@ public class MainActivity extends AppCompatActivity {
         return datos;
     }
 
+    private void alarmMethod(){
+        Intent myIntent = new Intent(this , firstActivity.class);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, myIntent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.AM_PM, Calendar.AM);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000 * 60 * 60 * 24, pendingIntent);
+
+        Toast.makeText(MainActivity.this, "Start Alarm", Toast.LENGTH_LONG).show();
+    }
     public int cantidadBoletasNulas(String tipo,String fecha) {
         int datos = 0;
         CursorSQLHelper db = new CursorSQLHelper(this,
@@ -511,6 +528,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 textView_fechas.setText("");
+                alarmMethod();
                 if (textView_horas.getText().length() == 13) {
                     textView_horas.setText(textView_horas.getText().toString().substring(0, textView_horas.getText().length() - 5));
                 }
@@ -696,15 +714,17 @@ public class MainActivity extends AppCompatActivity {
                         builder4.setTitle("Consultar boleta");
                         builder4.setMessage("Ingrese numero de boleta");
 
-                        final EditText input_boleta = (EditText) view2.findViewById(R.id.input_boleta);
-                        input_boleta.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        final EditText consultarBoleta = (EditText) view2.findViewById(R.id.consultarBoleta);
+                        consultarBoleta.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        int n=Integer.parseInt(num_boleta.getText().toString())-1;
+                        consultarBoleta.setText(String.valueOf(n));
 
                         builder4.setCancelable(true)
                                 .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
 
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        String cod = input_boleta.getText().toString();
+                                        String cod = consultarBoleta.getText().toString();
                                         String c = consultaBoleta(cod);
                                         nul = true;
                                         if ((cod.length() != 0) && (c != "")) {
@@ -1113,11 +1133,14 @@ public class MainActivity extends AppCompatActivity {
         String fecha=datosTurno.get(0);
         turno=datosTurno.get(1);
         String cantidad_total=datosTurno.get(2);
-        String ultima_boleta=nBoletaActual(fecha,turno);
+        //int boletaActual=Integer.parseInt(nBoletaActual(fecha,turno))+1;
+        //String boletaSiguiente=String.valueOf(boletaActual);
+        String boletaSiguiente=nBoletaActual(fecha,turno);
 
-        Log.d("Restaurados",fecha+" "+turno+" "+cantidad_total+" "+ultima_boleta);
+
+        Log.d("DATOS RESTAURADOS",cantidad_total+" "+boletaSiguiente);
         textView_total.setText("$ "+cantidad_total);
-        num_boleta.setText(ultima_boleta);
+        num_boleta.setText(boletaSiguiente);
 
         getSupportActionBar().setTitle("TURNO "+turno);
 

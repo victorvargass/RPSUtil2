@@ -11,11 +11,11 @@
     tools:context="victorvs.com.rpsutil2.MainActivity" >
 
     <EditText
-        android:id="@+id/input_boleta"
+        android:id="@+id/consultarBoleta"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text=""
-        android:maxLength="4"/>
+        android:maxLength="8"/>
 
 
 </LinearLayout>
