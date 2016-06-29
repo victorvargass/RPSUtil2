@@ -748,7 +748,6 @@ public class MainActivity extends AppCompatActivity {
                             builder2.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    if (nul == false){
                                         num_boleta.setText(String.valueOf(nBoletaF(getFechaActual(),turno)));
                                         eliminarUltimaBoleta(turno,getFechaActual());
                                         int valor=valorTotal(0,turno,getFechaActual());
@@ -758,7 +757,6 @@ public class MainActivity extends AppCompatActivity {
                                                 "Cantidad bol: "+cantidadBoletas(turno,getFechaActual())+"" +
                                                 "Cantidad bol nulas: "+cantidadBoletasNulas(turno,getFechaActual()));
                                         actualizarTurno(turno,getFechaActual(),valor,valor_nulas,cantidadBoletas(turno,getFechaActual()),cantidadBoletasNulas(turno,getFechaActual()));
-                                    }
                                 }
                             });
                             builder2.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
