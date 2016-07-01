@@ -1,9 +1,6 @@
 package victorvs.com.rpsutil2;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,48 +28,6 @@ public class finalActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         overridePendingTransition(R.anim.right_in, R.anim.right_out);
-    }
-
-    public String nBoletaF(String fecha,String tipo) {
-        String datos = "";
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"' ORDER BY id DESC LIMIT 1", null);
-
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
-        }
-        bd.close();
-        return datos;
-    }
-    public String nBoletaI(String fecha,String tipo) {
-        String datos = "";
-        CursorSQLHelper db = new CursorSQLHelper(this,
-                BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor fila = bd.rawQuery(
-                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"' ORDER BY id ASC LIMIT 1", null);
-
-        if (fila.moveToFirst()) {
-            datos = fila.getString(0);
-        }
-        bd.close();
-        return datos;
-    }
-
-    public void finalizarTurno(String tipo, String fecha){
-        ContentValues values=new ContentValues();
-        values.put("estado",0);
-
-        String where="tipo=? AND fecha=?";
-        String[] whereArgs={tipo,fecha};
-        CursorSQLHelper ch=new  CursorSQLHelper(this, BD_NAME, null, 1);
-        SQLiteDatabase db=ch.getWritableDatabase();
-        int nColumnasActualizadas=db.update("Turno",values,where,whereArgs);
-        Log.d("FIn T N columnas act: ",String.valueOf(nColumnasActualizadas));
-        db.close();
     }
 
     @Override
@@ -105,14 +60,14 @@ public class finalActivity extends AppCompatActivity {
         String cantidad_boletas_nulas = datos_turno.get(5);
 
 
-        b_i.setText(nBoletaI(fecha,tipo));
-        b_f.setText(nBoletaF(fecha,tipo));
+        b_i.setText(MainController.numeroBoletaInicial(this,fecha,tipo));
+        b_f.setText(MainController.numeroBoletaFinal(this,fecha,tipo));
         n_bt.setText(cantidad_boletas);
         m_total.setText(valor_total);
         turno.setText("Turno " + tipo);
         n_bn.setText(cantidad_boletas_nulas);
         m_nulas.setText(valor_total_nulas);
-        finalizarTurno(tipo,fecha);
+        MainController.finalizarTurno(this,tipo,fecha);
 
         init.setOnClickListener(new View.OnClickListener() {
             @Override

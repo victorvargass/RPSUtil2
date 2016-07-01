@@ -214,6 +214,20 @@ public class MainController{
         bd.close();
         return datos;
     }
+    public static String numeroBoletaInicial(Context context,String fecha,String tipo) {
+        String datos = "";
+        CursorSQLHelper db = new CursorSQLHelper(context,
+                BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor fila = bd.rawQuery(
+                "SELECT boleta FROM Boleta WHERE fecha_turno='"+fecha+"' AND tipo_turno='"+tipo+"' ORDER BY id ASC LIMIT 1", null);
+
+        if (fila.moveToFirst()) {
+            datos = fila.getString(0);
+        }
+        bd.close();
+        return datos;
+    }
 
     public static String numeroBoletaFinal(Context context,String fecha,String tipo) {
         String datos = "";
@@ -261,5 +275,18 @@ public class MainController{
         }
         bd.execSQL("DELETE FROM Boleta WHERE boleta=" +valor);
         bd.close();
+    }
+
+    public static void finalizarTurno(Context context,String tipo, String fecha){
+        ContentValues values=new ContentValues();
+        values.put("estado",0);
+
+        String where="tipo=? AND fecha=?";
+        String[] whereArgs={tipo,fecha};
+        CursorSQLHelper ch=new  CursorSQLHelper(context, BD_NAME, null, 1);
+        SQLiteDatabase db=ch.getWritableDatabase();
+        int nColumnasActualizadas=db.update("Turno",values,where,whereArgs);
+        Log.d("FIn T N columnas act: ",String.valueOf(nColumnasActualizadas));
+        db.close();
     }
 }
