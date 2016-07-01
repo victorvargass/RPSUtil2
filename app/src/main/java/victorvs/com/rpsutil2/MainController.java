@@ -7,13 +7,52 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
  * Created by danie on 30/06/2016.
  */
 public class MainController{
+
     static String BD_NAME = "base9";
+
+    public static JSONArray getBoletas(Context context, String fecha, String tipo){
+        JSONArray array_boleta = new JSONArray();
+
+        CursorSQLHelper db = new CursorSQLHelper(context,BD_NAME, null, 1);
+        SQLiteDatabase bd = db.getWritableDatabase();
+        Cursor c = bd.rawQuery(
+                "SELECT * FROM Boleta WHERE fecha_turno ='"+fecha+"' AND tipo_turno='"+tipo+"'", null);
+
+        if (c.moveToFirst()) {
+            while (c.isAfterLast() == false) {
+                String boleta = c.getString(1);
+                String valor = String.valueOf(c.getInt(2));
+                String nula = String.valueOf(c.getInt(3));
+                String tipo_turno = c.getString(4);
+                String fecha_turno = c.getString(5);
+
+                JSONObject boleta_actual = new JSONObject();
+                try {
+                    boleta_actual.put("boleta", boleta);
+                    boleta_actual.put("valor", valor);
+                    boleta_actual.put("nula", nula);
+                    boleta_actual.put("tipo_turno", tipo_turno);
+                    boleta_actual.put("fecha_turno", fecha_turno);
+                }
+                catch(Exception e){
+                    Log.d("JSON","error al guardar datos en JSONObject turno_actual");
+                }
+                array_boleta.put(boleta_actual);
+                c.moveToNext();
+            }
+        }
+        db.close();
+        return array_boleta;
+    }
 
     public static String consultaBoleta(Context context,String n_boleta) {
         String datos = "";

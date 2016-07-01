@@ -6,13 +6,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class finalActivity extends AppCompatActivity {
-
-    private String BD_NAME = "base9";
 
     private TextView b_i;
     private TextView b_f;
@@ -24,6 +28,12 @@ public class finalActivity extends AppCompatActivity {
     private TextView m_nulas;
 
     private Button init;
+
+    private ExpandableListView lista_boletas;
+    ExpandableListAdapter listAdapter;
+    List<String> listDataHeader;
+    HashMap<String, List<String>> listDataChild;
+
 
     @Override
     public void onBackPressed() {
@@ -40,9 +50,10 @@ public class finalActivity extends AppCompatActivity {
         n_bt = (TextView) findViewById(R.id.n_bt);
         m_total = (TextView) findViewById(R.id.m_total);
         turno = (TextView) findViewById(R.id.turno);
-
         n_bn = (TextView) findViewById(R.id.n_bn);
         m_nulas = (TextView) findViewById(R.id.m_nulas);
+
+        lista_boletas = (ExpandableListView)findViewById(R.id.listView);
 
         init = (Button) findViewById(R.id.init);
 
@@ -77,5 +88,29 @@ public class finalActivity extends AppCompatActivity {
             }
         });
 
+        listDataHeader = new ArrayList<>();
+        listDataChild = new HashMap<>();
+
+        JSONArray boletas = MainController.getBoletas(getApplicationContext(),fecha,tipo);
+        for(int i = 0;i<boletas.length();i++){
+            try {
+                JSONObject boleta_actual = boletas.getJSONObject(i);
+                listDataHeader.add("Boleta: " + boleta_actual.getString("boleta"));
+
+                List<String> list_child = new ArrayList<>();
+                list_child.add("Valor: "+boleta_actual.getString("valor")+ "\n"
+                            + "Fecha: "+boleta_actual.getString("fecha_turno")+ "\n"
+                            + "Tipo: "+boleta_actual.getString("tipo_turno"));
+                listDataChild.put(listDataHeader.get(i), list_child);
+            }
+            catch(Exception e){
+                Log.d("JSON","Error al agregar valores en listDataChild");
+            }
+        }
+
+        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+
+        lista_boletas.setAdapter(listAdapter);
     }
+
 }
