@@ -31,7 +31,7 @@ public class MainController{
             while (c.isAfterLast() == false) {
                 String boleta = c.getString(1);
                 String valor = String.valueOf(c.getInt(2));
-                String nula = String.valueOf(c.getInt(3));
+                int nula = c.getInt(3);
                 String hora = c.getString(4);
                 String tipo_turno = c.getString(5);
                 String fecha_turno = c.getString(6);

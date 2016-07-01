@@ -149,11 +149,25 @@
 
         </TableLayout>
 
-        <ExpandableListView
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:id="@+id/listView"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:baselineAligned="false">
+
+            <ExpandableListView
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:id="@+id/listView"
+                android:layout_weight="1" />
+
+            <ExpandableListView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/listView_right"
+                android:layout_weight="1" />
+        </LinearLayout>
 
         <Button
             android:layout_width="wrap_content"

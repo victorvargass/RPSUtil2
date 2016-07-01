@@ -29,10 +29,10 @@ public class finalActivity extends AppCompatActivity {
 
     private Button init;
 
-    private ExpandableListView lista_boletas;
-    ExpandableListAdapter listAdapter;
-    List<String> listDataHeader;
-    HashMap<String, List<String>> listDataChild;
+    private ExpandableListView lista_boletas_left,lista_boletas_right;
+    ExpandableListAdapter listAdapter_left,listAdapter_right;
+    List<String> listDataHeader_left,listDataHeader_right;
+    HashMap<String, List<String>> listDataChild_left,listDataChild_right;
 
 
     @Override
@@ -53,7 +53,8 @@ public class finalActivity extends AppCompatActivity {
         n_bn = (TextView) findViewById(R.id.n_bn);
         m_nulas = (TextView) findViewById(R.id.m_nulas);
 
-        lista_boletas = (ExpandableListView)findViewById(R.id.listView);
+        lista_boletas_left = (ExpandableListView)findViewById(R.id.listView);
+        lista_boletas_right = (ExpandableListView)findViewById(R.id.listView_right);
 
         init = (Button) findViewById(R.id.init);
 
@@ -88,28 +89,44 @@ public class finalActivity extends AppCompatActivity {
             }
         });
 
-        listDataHeader = new ArrayList<>();
-        listDataChild = new HashMap<>();
+        listDataHeader_left = new ArrayList<>();
+        listDataChild_left = new HashMap<>();
+        listDataHeader_right = new ArrayList<>();
+        listDataChild_right = new HashMap<>();
 
         JSONArray boletas = MainController.getBoletas(getApplicationContext(),fecha,tipo);
+        int count_left = 0;
+        int count_right = 0;
         for(int i = 0;i<boletas.length();i++){
             try {
                 JSONObject boleta_actual = boletas.getJSONObject(i);
-                listDataHeader.add("Boleta: " + boleta_actual.getString("boleta"));
-
                 List<String> list_child = new ArrayList<>();
-                list_child.add("Valor: "+boleta_actual.getString("valor")+ "\n"
+                if(boleta_actual.getInt("nula") == 0) {
+                    listDataHeader_left.add("Boleta: " + boleta_actual.getString("boleta"));
+                    list_child.add("Valor: "+boleta_actual.getString("valor")+ "\n"
                             + "Hora: "+boleta_actual.getString("hora"));
-                listDataChild.put(listDataHeader.get(i), list_child);
+                    listDataChild_left.put(listDataHeader_left.get(count_left), list_child);
+                    count_left++;
+                }
+                else{ // BOLETA NULA
+                    listDataHeader_right.add("Boleta: " + boleta_actual.getString("boleta"));
+                    list_child.add("Valor: "+boleta_actual.getString("valor")+ "\n"
+                            + "Hora: "+boleta_actual.getString("hora"));
+                    listDataChild_right.put(listDataHeader_right.get(count_right), list_child);
+                    count_right++;
+                }
+
             }
             catch(Exception e){
-                Log.d("JSON","Error al agregar valores en listDataChild");
+                Log.d("JSON",e.toString());
             }
         }
 
-        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+        listAdapter_left = new ExpandableListAdapter(this, listDataHeader_left, listDataChild_left);
+        listAdapter_right = new ExpandableListAdapter(this, listDataHeader_right, listDataChild_right);
 
-        lista_boletas.setAdapter(listAdapter);
+        lista_boletas_left.setAdapter(listAdapter_left);
+        lista_boletas_right.setAdapter(listAdapter_right);
     }
 
 }
