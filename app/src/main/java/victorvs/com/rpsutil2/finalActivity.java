@@ -62,34 +62,6 @@ public class finalActivity extends AppCompatActivity {
         return datos;
     }
 
-
-
-    public ArrayList<String> getTurnobyPK(String fecha_turno,String tipo_turno){
-        ArrayList<String> datos_turno=new ArrayList<>();
-        CursorSQLHelper db = new CursorSQLHelper(this,BD_NAME, null, 1);
-        SQLiteDatabase bd = db.getWritableDatabase();
-        Cursor c = bd.rawQuery(
-                "SELECT fecha,tipo,valor_total,cantidad_boletas,valor_total_nulas,cantidad_boletas_nulas FROM Turno WHERE fecha='"+fecha_turno+
-                        "' AND tipo='"+tipo_turno+"' ORDER BY id DESC LIMIT 1", null);
-
-        if (c.moveToFirst()) {
-            String fecha = c.getString(0);
-            String tipo = c.getString(1);
-            String valor_total = String.valueOf(c.getInt(2));
-            String cantidad_boletas = String.valueOf(c.getInt(3));
-            String valor_total_nulas = String.valueOf(c.getInt(4));
-            String cantidad_boletas_nulas = String.valueOf(c.getInt(5));
-            datos_turno.add(0,fecha);
-            datos_turno.add(1,tipo);
-            datos_turno.add(2,valor_total);
-            datos_turno.add(3,cantidad_boletas);
-            datos_turno.add(4,valor_total_nulas);
-            datos_turno.add(5,cantidad_boletas_nulas);
-        }
-        db.close();
-        return datos_turno;
-    }
-
     public void finalizarTurno(String tipo, String fecha){
         ContentValues values=new ContentValues();
         values.put("estado",0);
@@ -124,7 +96,7 @@ public class finalActivity extends AppCompatActivity {
         final String tipo = bundle.getString("tipo");
         final String fecha = bundle.getString("fecha");
 
-        ArrayList<String> datos_turno = getTurnobyPK(fecha,tipo);
+        ArrayList<String> datos_turno = MainController.getTurnobyPK(this,fecha,tipo);
 
         Log.d("Final :",fecha+" "+tipo);
         String valor_total = datos_turno.get(2);
