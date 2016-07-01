@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String primera_hora;
     private String segunda_hora;
+    private String hora;
     private Integer hrs1, hrs2, mins1, mins2, precio, precio_dsc;
     private Integer total = 0;
     private Integer total_boletas = 0;
@@ -347,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
                         n_bol = n_bol + 1;
                         String prec = precio_dsc.toString();
                         num_boleta.setText(n_bol.toString());
-                        MainController.insertarBoleta(getApplicationContext(), bol, prec, 0, turno, getFechaActual());
+                        MainController.insertarBoleta(getApplicationContext(), bol, prec, 0,hora, turno, getFechaActual());
                         Toast.makeText(getApplicationContext(), "Boleta ingresada con éxito", Toast.LENGTH_SHORT).show();
                         int valor = MainController.valorTotal(getApplicationContext(),0,turno,getFechaActual());
                         int valor_nulas = MainController.valorTotal(getApplicationContext(),1,turno,getFechaActual());
@@ -410,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                                             String bol = n_bol.toString();
                                             num_boleta.setText(bol);
                                             Log.d("Nulas:",boleta+" "+ valor_nula+" "+turno+" "+getFechaActual());
-                                            MainController.insertarBoleta(getApplicationContext(),boleta, valor_nula, 1, turno, getFechaActual());
+                                            MainController.insertarBoleta(getApplicationContext(),boleta, valor_nula, 1,hora, turno, getFechaActual());
                                             int valor = MainController.valorTotal(getApplicationContext(),0,turno,getFechaActual());
                                             int valor_nulas = MainController.valorTotal(getApplicationContext(),1,turno,getFechaActual());
                                             int cantidad_boletas = MainController.cantidadBoletas(getApplicationContext(),turno,getFechaActual());
@@ -424,7 +425,7 @@ public class MainActivity extends AppCompatActivity {
                                                 String bol = n_bol.toString();
                                                 num_boleta.setText(bol);
                                                 Log.d("Nulas:",boleta+" "+ valor_nula+" "+turno+" "+getFechaActual());
-                                                MainController.insertarBoleta(getApplicationContext(),boleta,valor_nula,1,turno,getFechaActual());
+                                                MainController.insertarBoleta(getApplicationContext(),boleta,valor_nula,1,hora,turno,getFechaActual());
                                                 int valor = MainController.valorTotal(getApplicationContext(),0,turno,getFechaActual());
                                                 int valor_nulas = MainController.valorTotal(getApplicationContext(),1,turno,getFechaActual());
                                                 int cantidad_boletas = MainController.cantidadBoletas(getApplicationContext(),turno,getFechaActual());
@@ -585,6 +586,8 @@ public class MainActivity extends AppCompatActivity {
 
                     primera_hora = s.toString().substring(0, 2) + s.toString().substring(3, 5);
                     segunda_hora = s.toString().substring(8, 10) + s.toString().substring(11, 13);
+
+                    hora = s.toString().substring(8,13);
 
                     hrs1 = Integer.parseInt(primera_hora.substring(0, 2));
                     hrs2 = Integer.parseInt(segunda_hora.substring(0, 2));

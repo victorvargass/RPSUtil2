@@ -32,14 +32,16 @@ public class MainController{
                 String boleta = c.getString(1);
                 String valor = String.valueOf(c.getInt(2));
                 String nula = String.valueOf(c.getInt(3));
-                String tipo_turno = c.getString(4);
-                String fecha_turno = c.getString(5);
+                String hora = c.getString(4);
+                String tipo_turno = c.getString(5);
+                String fecha_turno = c.getString(6);
 
                 JSONObject boleta_actual = new JSONObject();
                 try {
                     boleta_actual.put("boleta", boleta);
                     boleta_actual.put("valor", valor);
                     boleta_actual.put("nula", nula);
+                    boleta_actual.put("hora",hora);
                     boleta_actual.put("tipo_turno", tipo_turno);
                     boleta_actual.put("fecha_turno", fecha_turno);
                 }
@@ -161,7 +163,7 @@ public class MainController{
         db.close();
     }
 
-    public static void insertarBoleta(Context context,String boleta, String valor, int nula, String turno, String fecha) {
+    public static void insertarBoleta(Context context,String boleta, String valor, int nula, String hora, String turno, String fecha) {
         CursorSQLHelper ch = new CursorSQLHelper(context, BD_NAME, null, 1);
         SQLiteDatabase db = ch.getWritableDatabase();
         try {
@@ -169,6 +171,7 @@ public class MainController{
             c.put("boleta", boleta);
             c.put("valor", valor);
             c.put("nula", nula);
+            c.put("hora",hora);
             c.put("tipo_turno", turno);
             c.put("fecha_turno", fecha);
             db.insert("Boleta", null, c);

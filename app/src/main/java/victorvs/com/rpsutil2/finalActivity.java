@@ -75,7 +75,7 @@ public class finalActivity extends AppCompatActivity {
         b_f.setText(MainController.numeroBoletaFinal(this,fecha,tipo));
         n_bt.setText(cantidad_boletas);
         m_total.setText(valor_total);
-        turno.setText("Turno " + tipo);
+        turno.setText("Turno " + tipo + "     Fecha "+fecha);
         n_bn.setText(cantidad_boletas_nulas);
         m_nulas.setText(valor_total_nulas);
         MainController.finalizarTurno(this,tipo,fecha);
@@ -99,8 +99,7 @@ public class finalActivity extends AppCompatActivity {
 
                 List<String> list_child = new ArrayList<>();
                 list_child.add("Valor: "+boleta_actual.getString("valor")+ "\n"
-                            + "Fecha: "+boleta_actual.getString("fecha_turno")+ "\n"
-                            + "Tipo: "+boleta_actual.getString("tipo_turno"));
+                            + "Hora: "+boleta_actual.getString("hora"));
                 listDataChild.put(listDataHeader.get(i), list_child);
             }
             catch(Exception e){

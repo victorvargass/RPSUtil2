@@ -13,6 +13,7 @@ public class CursorSQLHelper extends SQLiteOpenHelper{
             "boleta text," +
             "valor integer," +
             "nula integer," +
+            "hora string," +
             "tipo_turno text ," +
             "fecha_turno text," +
             "foreign key (tipo_turno) references Turno(tipo)," +
